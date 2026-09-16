@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# STAYO WorkStay
 
-## Getting Started
+Premium B2B workforce accommodation infrastructure platform.
 
-First, run the development server:
+## Architecture
+
+- **Framework**: Next.js (App Router)
+- **Styling**: Tailwind CSS v4
+- **Animations**: Framer Motion
+- **Database**: Prisma ORM (PostgreSQL)
+- **Authentication**: JWT via `jose` (HttpOnly Cookies)
+- **Validation**: Zod
+- **Typography**: Inter & Plus Jakarta Sans
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and fill in the required values.
+
+Required variables:
+- `DATABASE_URL`: PostgreSQL connection string
+- `JWT_SECRET`: Secure string for signing admin session tokens (min 32 chars)
+- `ADMIN_EMAIL`: Initial admin login email (provisioning)
+- `ADMIN_PASSWORD_HASH`: Initial admin password
+- `NEXT_PUBLIC_SITE_URL`: The production URL (used for SEO metadata and sitemaps)
+
+*Never commit `.env` containing production secrets.*
+
+## Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Database Migration Workflow
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+For local development (when changing the schema in `prisma/schema.prisma`):
+```bash
+npx prisma migrate dev --name your_migration_name
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+For production deployment, run:
+```bash
+npx prisma migrate deploy
+npx prisma generate
+```
 
-## Learn More
+*(Note: Never use `prisma db push` on a production database.)*
 
-To learn more about Next.js, take a look at the following resources:
+## Internal CRM
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The `/admin` route provides an internal CRM to manage workforce requirements submitted via the public contact form.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Authentication**: Required for all `/admin/*` routes. Enforced via Next.js Middleware and Server Component verification.
+- **Data Source**: Uses real records from the `Enquiry` table.
 
-## Deploy on Vercel
+## Production Build
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+npm run start
+```

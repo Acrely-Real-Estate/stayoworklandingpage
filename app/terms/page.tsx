@@ -1,0 +1,1 @@
+export default function Page() { return (<div className="flex min-h-screen flex-col items-center justify-center p-24"><h1 className="font-headline text-4xl font-bold">Terms of Service</h1><p className="mt-4 text-on-surface-variant">Page under construction (Phase 2+)</p></div>); }

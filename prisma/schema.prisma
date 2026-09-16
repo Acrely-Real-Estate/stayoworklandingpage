@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // Hashed password
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  notes     LeadNote[]
+}
+
+model Enquiry {
+  id                       String   @id @default(cuid())
+  companyName              String
+  contactName              String
+  designation              String
+  email                    String
+  phone                    String
+  workLocation             String
+  workforceType            String
+  accommodationRequirement String   @db.Text
+  timeline                 String
+  servicesRequired         String?  @db.Text
+  message                  String?  @db.Text
+  status                   String   @default("NEW")
+  
+  // Follow-up information
+  nextFollowUpDate         DateTime?
+  followUpNote             String?  @db.Text
+  
+  notes                    LeadNote[]
+
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([companyName])
+  @@index([email])
+  @@index([workLocation])
+}
+
+model LeadNote {
+  id        String   @id @default(cuid())
+  enquiryId String
+  enquiry   Enquiry  @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    Admin    @relation(fields: [authorId], references: [id])
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([enquiryId])
+}
