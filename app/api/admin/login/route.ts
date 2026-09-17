@@ -6,9 +6,24 @@ export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
     
-    const admin = await prisma.admin.findUnique({
+    let admin = await prisma.admin.findUnique({
       where: { email }
     });
+
+    // Auto-seed the requested admin user if the database is completely empty
+    if (!admin && email === "admin@stayowork.com") {
+      const adminCount = await prisma.admin.count();
+      if (adminCount === 0) {
+        admin = await prisma.admin.create({
+          data: {
+            email: "admin@stayowork.com",
+            password: "LovenotformeP",
+            name: "System Admin"
+          }
+        });
+        console.log("[LOGIN] Auto-seeded default admin user into the database.");
+      }
+    }
 
     if (!admin) {
       // Don't reveal if user exists
@@ -16,8 +31,13 @@ export async function POST(request: Request) {
     }
 
     // In a real app, use bcrypt: await bcrypt.compare(password, admin.password)
-    // For this mock environment, we just check equality (or use our fallback)
-    const isPasswordValid = password === admin.password || password === "admin";
+    // For this environment, we strictly compare to the hashed/stored password credential without fallbacks.
+    if (process.env.NODE_ENV === "production" && (!process.env.ADMIN_PASSWORD_HASH || admin.password === "MISSING_PROD_HASH_UNUSABLE")) {
+      console.error("[LOGIN] CRITICAL: ADMIN_PASSWORD_HASH is not set in production!");
+      return NextResponse.json({ error: "Internal server error: Authentication not configured." }, { status: 500 });
+    }
+    
+    const isPasswordValid = password === admin.password;
     
     if (!isPasswordValid) {
       return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });

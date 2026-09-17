@@ -30,6 +30,12 @@ export async function PATCH(
       data: { status }
     });
 
+    const { revalidatePath } = require("next/cache");
+    revalidatePath(`/admin/leads/${id}`);
+    revalidatePath(`/admin/leads`);
+    revalidatePath(`/admin/dashboard`);
+    revalidatePath(`/admin/companies`);
+
     return NextResponse.json({ success: true, enquiry: updatedEnquiry });
   } catch (error) {
     console.error("[UPDATE_STATUS]", error);

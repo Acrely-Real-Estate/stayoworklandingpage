@@ -13,11 +13,12 @@ export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect("/admin/login");
 
-  const [totalLeads, newLeads, contactedLeads, qualifiedLeads] = await Promise.all([
+  const [totalLeads, newLeads, contactedLeads, qualifiedLeads, followUpsDue] = await Promise.all([
     prisma.enquiry.count(),
     prisma.enquiry.count({ where: { status: "NEW" } }),
     prisma.enquiry.count({ where: { status: "CONTACTED" } }),
     prisma.enquiry.count({ where: { status: "QUALIFIED" } }),
+    prisma.enquiry.count({ where: { nextFollowUpDate: { lte: new Date() }, status: { notIn: ["WON", "LOST"] } } }),
   ]);
 
   const recentEnquiries = await prisma.enquiry.findMany({
@@ -32,11 +33,12 @@ export default async function DashboardPage() {
         <p className="text-on-surface-variant font-medium">Overview of the STAYO WorkStay enquiry pipeline.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard title="Total Leads" value={totalLeads} />
         <StatCard title="New" value={newLeads} highlight />
         <StatCard title="Contacted" value={contactedLeads} />
         <StatCard title="Qualified" value={qualifiedLeads} />
+        <StatCard title="Follow-ups Due" value={followUpsDue} highlight={followUpsDue > 0} />
       </div>
 
       <div className="flex flex-col gap-4 mt-8">
@@ -50,10 +52,10 @@ export default async function DashboardPage() {
         <div className="bg-surface-container-lowest border border-outline-variant/30 rounded shadow-sm overflow-hidden overflow-x-auto">
           {recentEnquiries.length === 0 ? (
             <div className="p-12 text-center text-on-surface-variant font-medium">
-              No enquiries yet.
+              No sales activity yet. Once your first corporate enquiry arrives, it will appear here.
             </div>
           ) : (
-            <table className="w-full text-left border-collapse min-w-[800px]">
+            <table className="w-full text-left border-collapse min-w-[900px]">
               <thead>
                 <tr className="bg-surface-container-low border-b border-outline-variant/30 text-xs tracking-wider uppercase text-on-surface-variant">
                   <th className="p-4 font-bold">Company</th>
@@ -62,6 +64,7 @@ export default async function DashboardPage() {
                   <th className="p-4 font-bold">Scale</th>
                   <th className="p-4 font-bold">Status</th>
                   <th className="p-4 font-bold">Created</th>
+                  <th className="p-4 font-bold">Next Follow-up</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/20">
@@ -83,6 +86,9 @@ export default async function DashboardPage() {
                     </td>
                     <td className="p-4 text-sm text-on-surface-variant">
                       {formatDistanceToNow(enq.createdAt, { addSuffix: true })}
+                    </td>
+                    <td className="p-4 text-sm text-on-surface-variant font-medium">
+                      {enq.nextFollowUpDate ? formatDistanceToNow(enq.nextFollowUpDate, { addSuffix: true }) : "—"}
                     </td>
                   </tr>
                 ))}

@@ -4,7 +4,8 @@ import Link from "next/link";
 import { ArrowLeft, Building2, User, MapPin, Clock, FileText } from "lucide-react";
 import { format } from "date-fns";
 import LeadStatusSelect from "@/components/admin/LeadStatusSelect";
-import { getStatusColor } from "../../dashboard/page";
+import LeadFollowUpEditor from "@/components/admin/LeadFollowUpEditor";
+import LeadNotesEditor from "@/components/admin/LeadNotesEditor";
 import { getSession } from "@/lib/auth";
 
 export default async function LeadDetailPage({
@@ -16,7 +17,13 @@ export default async function LeadDetailPage({
   if (!session) redirect("/admin/login");
   const resolvedParams = await params;
   const enquiry = await prisma.enquiry.findUnique({
-    where: { id: resolvedParams.id }
+    where: { id: resolvedParams.id },
+    include: {
+      notes: {
+        include: { author: true },
+        orderBy: { createdAt: "desc" }
+      }
+    }
   });
 
   if (!enquiry) {
@@ -40,9 +47,15 @@ export default async function LeadDetailPage({
             </p>
           </div>
           
-          <div className="flex flex-col gap-2 bg-surface-container-low p-4 rounded border border-outline-variant/30 min-w-[240px]">
-            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Pipeline Status</span>
-            <LeadStatusSelect enquiryId={enquiry.id} currentStatus={enquiry.status} />
+          <div className="flex flex-col sm:flex-row gap-4 bg-surface-container-low p-4 rounded border border-outline-variant/30">
+            <div className="flex flex-col gap-2 min-w-[200px]">
+              <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Pipeline Status</span>
+              <LeadStatusSelect enquiryId={enquiry.id} currentStatus={enquiry.status} />
+            </div>
+            <div className="hidden sm:block w-px bg-outline-variant/30 self-stretch" />
+            <div className="min-w-[200px]">
+              <LeadFollowUpEditor enquiryId={enquiry.id} currentDate={enquiry.nextFollowUpDate} />
+            </div>
           </div>
         </div>
       </div>
@@ -94,8 +107,8 @@ export default async function LeadDetailPage({
 
         </div>
 
-        {/* Right Column: Metadata & Notes (Phase 6 minimal notes) */}
-        <div className="flex flex-col gap-6">
+        {/* Right Column: Metadata & Notes */}
+        <div className="flex flex-col gap-6 h-full">
           <section className="bg-surface-container-low border border-outline-variant/30 rounded p-6 shadow-sm">
             <h2 className="text-xs font-bold text-primary tracking-widest uppercase mb-6 flex items-center gap-2 pb-2 border-b border-outline-variant/30">
               <Clock className="w-4 h-4" /> Metadata
@@ -106,17 +119,12 @@ export default async function LeadDetailPage({
             </div>
           </section>
 
-          {/* Internal Notes Placeholder for Phase 6 */}
-          <section className="bg-surface-container-lowest border border-outline-variant/30 rounded p-6 shadow-sm flex-1">
+          {/* Internal Notes */}
+          <section className="bg-surface-container-lowest border border-outline-variant/30 rounded p-6 shadow-sm flex-1 flex flex-col min-h-[500px]">
             <h2 className="text-xs font-bold text-primary tracking-widest uppercase mb-6 flex items-center gap-2 pb-2 border-b border-outline-variant/30">
-              <User className="w-4 h-4" /> Internal Notes
+              <User className="w-4 h-4" /> Sales Activity
             </h2>
-            <div className="text-sm text-on-surface-variant italic mb-4">
-              No internal notes yet.
-            </div>
-            <button className="w-full py-2 border border-outline-variant/50 border-dashed rounded text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors cursor-not-allowed opacity-50">
-              + Add Note (Coming soon)
-            </button>
+            <LeadNotesEditor enquiryId={enquiry.id} notes={enquiry.notes} />
           </section>
         </div>
 

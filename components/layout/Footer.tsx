@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { isLocalAdminBypass } from "@/lib/auth";
 
-export default function Footer() {
+export default async function Footer() {
+  const isLocal = await isLocalAdminBypass();
+
   return (
     <footer className="w-full bg-surface-container-low border-t border-outline-variant mt-auto">
       <div className="max-w-7xl mx-auto px-margin-mobile md:px-margin pt-space-xl pb-space-lg">
@@ -115,6 +118,12 @@ export default function Footer() {
             <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
             <span className="text-outline-variant">|</span>
             <Link href="/about" className="hover:text-primary transition-colors">Institutional Compliance</Link>
+            {isLocal && (
+              <>
+                <span className="text-outline-variant">|</span>
+                <Link href="/admin/login" className="hover:text-primary transition-colors font-bold text-primary">Admin Access</Link>
+              </>
+            )}
           </div>
         </div>
       </div>

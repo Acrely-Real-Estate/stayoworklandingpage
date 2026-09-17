@@ -33,7 +33,7 @@ export default async function SettingsPage() {
             
             <div className="flex flex-col gap-1">
               <span className="text-sm font-bold text-on-surface-variant">Email</span>
-              <span className="text-base font-medium text-on-surface">{session?.admin?.email || "admin@stayoworkstay.com"}</span>
+              <span className="text-base font-medium text-on-surface">{session?.admin?.email || "admin@stayowork.com"}</span>
             </div>
           </div>
         </div>

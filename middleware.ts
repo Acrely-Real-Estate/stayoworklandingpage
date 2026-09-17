@@ -23,6 +23,15 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Local development bypass check
+  const host = request.headers.get('host') || '';
+  const isLocalHost = host.startsWith("localhost:") || host.startsWith("127.0.0.1:") || host.startsWith("[::1]:") || host === "localhost" || host === "127.0.0.1" || host === "[::1]";
+  const isLocalBypassAllowed = process.env.NODE_ENV !== "production" && isLocalHost;
+
+  if (isLocalBypassAllowed && !decodedSession && request.cookies.get("local_bypass")?.value === "true") {
+    decodedSession = { admin: { id: "local-dev", email: "dev@localhost", name: "Local Dev" } };
+  }
+
   // If not logged in and trying to access protected route
   if (!decodedSession && !isAuthRoute) {
     return NextResponse.redirect(new URL('/admin/login', request.url));

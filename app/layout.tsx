@@ -15,7 +15,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://stayoworkstay.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://stayowork.com'),
   title: {
     default: "STAYO WorkStay | Corporate Workforce Accommodation Infrastructure",
     template: "%s | STAYO WorkStay"

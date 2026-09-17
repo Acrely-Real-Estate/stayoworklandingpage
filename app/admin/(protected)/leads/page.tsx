@@ -17,21 +17,39 @@ export default async function LeadsPage({
 }) {
   const session = await getSession();
   if (!session) redirect("/admin/login");
-  const resolvedParams = await searchParams;
-  const page = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page) : 1;
+  const searchParamsValue = await searchParams;
+  const page = typeof searchParamsValue.page === 'string' ? parseInt(searchParamsValue.page) : 1;
+  const search = typeof searchParamsValue.search === 'string' ? searchParamsValue.search : undefined;
+  const statusFilter = typeof searchParamsValue.status === 'string' && searchParamsValue.status ? searchParamsValue.status : undefined;
+  
   const limit = 20;
   const skip = (page - 1) * limit;
 
-  // Since we are mocking the DB, complex search might be limited, but let's implement standard Prisma findMany
-  // Wait, our mock doesn't support full where queries yet. Let's stick to basic pagination.
+  const whereCondition: any = {};
   
-  const leads = await prisma.enquiry.findMany({
-    orderBy: { createdAt: 'desc' },
-    skip,
-    take: limit
-  });
+  if (search) {
+    whereCondition.OR = [
+      { companyName: { contains: search, mode: 'insensitive' } },
+      { contactName: { contains: search, mode: 'insensitive' } },
+      { email: { contains: search, mode: 'insensitive' } },
+      { workLocation: { contains: search, mode: 'insensitive' } },
+    ];
+  }
   
-  const total = await prisma.enquiry.count();
+  if (statusFilter) {
+    whereCondition.status = statusFilter;
+  }
+
+  const [leads, total] = await Promise.all([
+    prisma.enquiry.findMany({
+      where: whereCondition,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    prisma.enquiry.count({ where: whereCondition })
+  ]);
+  
   const totalPages = Math.ceil(total / limit);
 
   return (
@@ -44,17 +62,39 @@ export default async function LeadsPage({
       </div>
 
       <div className="bg-surface-container-lowest border border-outline-variant/30 rounded shadow-sm overflow-hidden flex flex-col">
-        {/* Basic Search Header */}
-        <div className="p-4 border-b border-outline-variant/30 bg-surface-container-low flex items-center">
-          <div className="relative w-full max-w-md">
+        {/* Search & Filter Header */}
+        <div className="p-4 border-b border-outline-variant/30 bg-surface-container-low flex flex-col sm:flex-row sm:items-center gap-4">
+          <form method="GET" action="/admin/leads" className="relative w-full max-w-md flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
             <input 
               type="text" 
-              placeholder="Search companies or contacts (Phase 6 placeholder)" 
-              disabled
-              className="w-full pl-10 pr-4 py-2 text-sm bg-surface-container border border-outline-variant/50 rounded-sm focus:outline-none disabled:opacity-50"
+              name="search"
+              defaultValue={search}
+              placeholder="Search companies, contacts, location..." 
+              className="w-full pl-10 pr-4 py-2 text-sm bg-surface-container border border-outline-variant/50 rounded-sm focus:outline-none focus:border-primary transition-colors"
             />
-          </div>
+            {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
+          </form>
+          
+          <form method="GET" action="/admin/leads" className="w-full sm:w-auto">
+            {search && <input type="hidden" name="search" value={search} />}
+            <select 
+              name="status"
+              defaultValue={statusFilter || ""}
+              onChange={(e) => e.target.form?.submit()}
+              className="w-full sm:w-auto appearance-none bg-surface-container border border-outline-variant/50 rounded-sm py-2 px-4 text-sm font-bold text-on-surface focus:outline-none focus:border-primary transition-colors"
+            >
+              <option value="">All Statuses</option>
+              <option value="NEW">NEW</option>
+              <option value="CONTACTED">CONTACTED</option>
+              <option value="QUALIFIED">QUALIFIED</option>
+              <option value="REQUIREMENT_RECEIVED">REQUIREMENT RECEIVED</option>
+              <option value="PROPOSAL">PROPOSAL</option>
+              <option value="NEGOTIATION">NEGOTIATION</option>
+              <option value="WON">WON</option>
+              <option value="LOST">LOST</option>
+            </select>
+          </form>
         </div>
 
         <div className="overflow-x-auto min-h-[400px]">
@@ -69,10 +109,10 @@ export default async function LeadsPage({
                   <th className="p-4 font-bold">Company</th>
                   <th className="p-4 font-bold">Contact</th>
                   <th className="p-4 font-bold">Location</th>
-                  <th className="p-4 font-bold">Workforce</th>
                   <th className="p-4 font-bold">Scale</th>
                   <th className="p-4 font-bold">Status</th>
                   <th className="p-4 font-bold">Created</th>
+                  <th className="p-4 font-bold">Next Follow-up</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/20">
@@ -86,7 +126,6 @@ export default async function LeadsPage({
                     </td>
                     <td className="p-4 text-sm text-on-surface-variant">{enq.contactName}</td>
                     <td className="p-4 text-sm text-on-surface-variant">{enq.workLocation}</td>
-                    <td className="p-4 text-sm text-on-surface-variant">{enq.workforceType}</td>
                     <td className="p-4 text-sm text-on-surface-variant">{enq.accommodationRequirement}</td>
                     <td className="p-4">
                       <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-bold ${getStatusColor(enq.status)}`}>
@@ -95,6 +134,9 @@ export default async function LeadsPage({
                     </td>
                     <td className="p-4 text-sm text-on-surface-variant">
                       {format(enq.createdAt, "MMM d, yyyy")}
+                    </td>
+                    <td className="p-4 text-sm text-on-surface-variant font-medium">
+                      {enq.nextFollowUpDate ? format(enq.nextFollowUpDate, "MMM d, yyyy") : "—"}
                     </td>
                   </tr>
                 ))}

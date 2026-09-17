@@ -12,40 +12,39 @@ export const metadata = {
 export default async function CompaniesPage() {
   const session = await getSession();
   if (!session) redirect("/admin/login");
-  const enquiries = await prisma.enquiry.findMany({
-    orderBy: { createdAt: 'desc' }
+  // Aggregate to get company names and their counts
+  const aggregated = await prisma.enquiry.groupBy({
+    by: ['companyName'],
+    _count: { id: true },
+    _max: { createdAt: true }
   });
 
-  // Group by company name (simple grouping for Phase 6)
-  const companiesMap = new Map<string, {
-    name: string;
-    locations: Set<string>;
-    count: number;
-    latestCreatedAt: Date;
-    latestStatus: string;
-    latestId: string;
-  }>();
-
-  for (const enq of enquiries) {
-    const name = enq.companyName.trim();
-    if (!companiesMap.has(name)) {
-      companiesMap.set(name, {
-        name,
-        locations: new Set([enq.workLocation]),
-        count: 1,
-        latestCreatedAt: enq.createdAt,
-        latestStatus: enq.status,
-        latestId: enq.id
-      });
-    } else {
-      const existing = companiesMap.get(name)!;
-      existing.locations.add(enq.workLocation);
-      existing.count += 1;
-      // Since enquiries are ordered by desc, the first one encountered is the latest
+  // Prisma groupBy doesn't let us select other fields (like status, workLocation),
+  // so we fetch the latest enquiry for each company directly to get the full view.
+  // This is much better than fetching *all* enquiries into memory.
+  const latestEnquiries = await prisma.enquiry.findMany({
+    distinct: ['companyName'],
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      companyName: true,
+      status: true,
+      workLocation: true,
+      createdAt: true
     }
-  }
+  });
 
-  const companies = Array.from(companiesMap.values());
+  const companies = latestEnquiries.map(latest => {
+    const agg = aggregated.find(a => a.companyName === latest.companyName);
+    return {
+      name: latest.companyName,
+      location: latest.workLocation,
+      count: agg?._count.id || 1,
+      latestStatus: latest.status,
+      latestCreatedAt: latest.createdAt,
+      latestId: latest.id
+    };
+  });
 
   return (
     <div className="flex flex-col gap-8 max-w-7xl mx-auto w-full">
@@ -81,8 +80,8 @@ export default async function CompaniesPage() {
                       </Link>
                       <span className="font-medium text-on-surface">{company.name}</span>
                     </td>
-                    <td className="p-4 text-sm text-on-surface-variant max-w-xs truncate" title={Array.from(company.locations).join(", ")}>
-                      {Array.from(company.locations).join(", ")}
+                    <td className="p-4 text-sm text-on-surface-variant max-w-xs truncate" title={company.location}>
+                      {company.location}
                     </td>
                     <td className="p-4 text-sm font-medium">
                       {company.count}
