@@ -1,6 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/Button";
 
 const stages = [
   { step: "01", title: "REQUIREMENT", desc: "Understand the workforce requirement." },
@@ -16,9 +20,16 @@ export default function HowItWorks() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
           <div className="lg:col-span-4 lg:sticky lg:top-32 self-start mb-16 lg:mb-0">
             <span className="text-xs font-bold text-primary tracking-widest uppercase mb-4 block">Methodology</span>
-            <h2 className="font-headline text-4xl md:text-5xl font-bold text-on-surface">
+            <h2 className="font-headline text-4xl md:text-5xl font-bold text-on-surface mb-8">
               How we work.
             </h2>
+            <Link 
+              href="/how-it-works"
+              className={cn(buttonVariants("outline", "sm"), "uppercase tracking-widest group")}
+            >
+              See detailed process
+              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
           
           <div className="lg:col-span-8 flex flex-col gap-32">

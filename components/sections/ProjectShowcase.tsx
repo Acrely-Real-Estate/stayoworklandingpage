@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/Button";
 
 export default function ProjectShowcase() {
   return (
@@ -14,13 +16,15 @@ export default function ProjectShowcase() {
               Purpose-built accommodation<br />for the places where people work.
             </h2>
           </div>
-          <Link
-            href="/contact"
-            className="inline-flex items-center justify-center px-6 py-3 bg-transparent text-primary text-sm font-bold uppercase tracking-widest border border-primary hover:bg-primary hover:text-on-primary transition-colors whitespace-nowrap"
-          >
-            Discuss a Project
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Link>
+          <div className="flex flex-col gap-4">
+            <Link
+              href="/projects"
+              className={cn(buttonVariants("outline", "sm"), "uppercase tracking-widest group")}
+            >
+              View Project Contexts
+              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">

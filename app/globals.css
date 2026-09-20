@@ -60,3 +60,63 @@ body {
     scrollbar-width: none;
   }
 }
+
+/* =============================================
+   STAYO Crystal Button — Light Sweep Animation 
+   ============================================= */
+
+/* Crystal (dark green glass) sweep */
+.stayo-crystal-sweep::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    110deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.12) 45%,
+    rgba(255, 255, 255, 0.18) 50%,
+    rgba(255, 255, 255, 0.12) 55%,
+    transparent 80%
+  );
+  transform: translateX(-120%);
+  transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.stayo-crystal-sweep:hover::before {
+  transform: translateX(120%);
+}
+
+/* Frost (clear glass) sweep */
+.stayo-frost-sweep::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    110deg,
+    transparent 20%,
+    rgba(0, 54, 34, 0.06) 45%,
+    rgba(0, 54, 34, 0.10) 50%,
+    rgba(0, 54, 34, 0.06) 55%,
+    transparent 80%
+  );
+  transform: translateX(-120%);
+  transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.stayo-frost-sweep:hover::before {
+  transform: translateX(120%);
+}
+
+/* Disable sweep animation for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .stayo-crystal-sweep::before,
+  .stayo-frost-sweep::before {
+    display: none;
+  }
+}

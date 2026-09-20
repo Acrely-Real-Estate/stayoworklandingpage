@@ -2,6 +2,9 @@
 
 import { motion } from "framer-motion";
 import { Reveal } from "@/components/ui/Reveal";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/Button";
 
 export default function AboutIntro() {
   return (
@@ -32,9 +35,18 @@ export default function AboutIntro() {
               </h2>
             </Reveal>
             <Reveal delay={0.2}>
-              <p className="text-xl text-on-surface-variant font-medium leading-relaxed max-w-lg">
+              <p className="text-xl text-on-surface-variant font-medium leading-relaxed max-w-lg mb-8">
                 As a specialized operating unit of Acrely Real Estates, STAYO WorkStay merges institutional real estate discipline with deep operational hospitality expertise.
               </p>
+            </Reveal>
+            <Reveal delay={0.3}>
+              <Link
+                href="/about"
+                className={cn(buttonVariants("outline", "sm"), "uppercase tracking-widest group inline-flex")}
+              >
+                Learn More About Us
+                <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </Link>
             </Reveal>
           </div>
         </div>

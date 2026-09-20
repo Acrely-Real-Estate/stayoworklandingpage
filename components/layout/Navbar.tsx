@@ -54,7 +54,7 @@ export default function Navbar() {
         {/* CENTER NAV (Desktop) */}
         <nav className="hidden lg:flex items-center gap-8 xl:gap-10 h-full">
           {navLinks.map((link) => {
-            const isActive = pathname === link.path;
+            const isActive = pathname === link.path || (link.path !== '/' && pathname.startsWith(link.path));
             return (
               <Link
                 key={link.name}
@@ -83,7 +83,7 @@ export default function Navbar() {
             className={cn(buttonVariants("crystal", "sm"), "hidden md:inline-flex group")}
           >
             Discuss Your Requirement
-            <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
+            <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1.5" />
           </Link>
           
           {/* Architectural Detail (Hidden on small screens) */}

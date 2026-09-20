@@ -41,7 +41,7 @@ export default function SolutionDetail() {
                     className="inline-flex items-center text-primary font-bold hover:text-primary/80 transition-colors group"
                   >
                     Discuss Your Requirement
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1.5 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]" />
                   </Link>
                 </div>
               </div>

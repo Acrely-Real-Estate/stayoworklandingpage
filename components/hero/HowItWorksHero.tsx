@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { howItWorksContent } from "@/content/how-it-works";
 import { SplitText } from "@/components/ui/SplitText";
+import { buttonVariants } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 
 export default function HowItWorksHero() {
   return (
@@ -56,7 +58,7 @@ export default function HowItWorksHero() {
           >
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center px-space-xl py-space-md bg-primary text-on-primary text-base font-semibold rounded hover:bg-primary/90 transition-all duration-300 shadow-md hover:shadow-lg group"
+              className={cn(buttonVariants("crystal", "lg"), "group")}
             >
               Discuss Your Requirement
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { contactContent } from "@/content/contact";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/Button";
 
 export default function RequirementForm() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -189,10 +191,10 @@ export default function RequirementForm() {
       <button
         type="submit"
         disabled={status === "submitting"}
-        className="w-full md:w-auto self-start inline-flex items-center justify-center px-10 py-5 bg-primary text-on-primary text-lg font-bold rounded shadow-lg hover:shadow-xl hover:bg-primary/90 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed group"
+        className={cn(buttonVariants("crystal", "lg"), "w-full md:w-auto self-start group")}
       >
         {status === "submitting" ? "Submitting..." : "Discuss Your Requirement"}
-        {status !== "submitting" && <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-2 transition-transform" />}
+        {status !== "submitting" && <ArrowRight className="w-6 h-6 ml-3 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1.5" />}
       </button>
     </form>
   );

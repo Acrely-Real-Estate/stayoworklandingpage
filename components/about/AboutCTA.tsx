@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/Button";
 import { aboutContent } from "@/content/about";
 
 export default function AboutCTA() {
@@ -30,7 +32,7 @@ export default function AboutCTA() {
         >
           <Link
             href="/contact"
-            className="inline-flex items-center justify-center px-10 py-5 bg-surface-container-lowest text-on-surface text-lg font-bold rounded shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group"
+            className={cn(buttonVariants("frost", "lg"), "group")}
           >
             Discuss Your Requirement
             <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-2 transition-transform" />

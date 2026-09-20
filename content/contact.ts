@@ -6,7 +6,7 @@ export const contactContent = {
   },
   details: {
     email: "contact@stayowork.com",
-    phone: "0-044-2851 8800",
+    phone: "+91 44-47985015",
     general: {
       label: "GENERAL ENQUIRIES",
       description: "We're available to discuss your requirement."
